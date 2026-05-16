@@ -20,7 +20,6 @@ function bullet_manager:new(_sprite, _pos, _vel, _dmg, _cust, _cust_movement, _c
 		-- Originally, this function was "print("hewwo")". I liked that
 	end
 	_table.__index = _table
-	print(table.concat(_table) .. "as spected ")
 	return _table
 end
 
@@ -37,7 +36,7 @@ function bullet_manager:collide(_bullets_pack, _enemies_pack, _towers_pack, _dt)
 	end
 	-- THIS IS NOT OPTIMIZED; WTF. PLS USE YOUR BRAIN. #######
 	local _new_bullet_pack = {}
-	for _i, _bullet in pairs(_bullets_pack) do
+	for _i, _bullet in ipairs(_bullets_pack) do
 		if _bullet.is_custom then
 			_bullet.custom_collider(_bullets_pack, _enemies_pack, _towers_pack, _dt)
 		else
@@ -46,7 +45,6 @@ function bullet_manager:collide(_bullets_pack, _enemies_pack, _towers_pack, _dt)
 				_bullet = bullet_manager:bullet_death(_bullet, _obj, _dt)
 			end
 		end
-		print(table.concat(_bullet))
 		table.insert(_new_bullet_pack, _bullet)
 	end
 	return _new_bullet_pack

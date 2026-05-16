@@ -2,7 +2,6 @@ require("objects.bullet_manager")
 require("objects.enemies_manager")
 require("objects.item_manager")
 require("usefull")
-jit.off()
 Fps = 0
 Bullet_count = 0
 how_many_bullets = 1
@@ -15,11 +14,34 @@ function love.load()
 			print(_dmg)
 		end,
 	}
+
+	local tabla_prueba = { patata = 20 }
+	function print_table(_table)
+		for _i, _arg in pairs(_table) do
+			print(type(_arg))
+			if type(_arg) == "table" then
+				print(" ")
+			else
+				if type(_arg) == "function" then
+					print(" ")
+				else
+					if type(_arg) == "boolean" then
+						print(" ")
+					else
+						print(_i .. " " .. _arg .. " ")
+					end
+				end
+			end
+		end
+	end
+	print_table(tabla_prueba)
+
 	-- enemies_manager:set_enemie(false, { 300, 300, 0 }, { 30, 30 }, 2, { type = "c", radius = 30 })
 end
 
 function love.update(dt)
 	Fps = (1 / dt)
+	print(Fps)
 	local _player_move = {
 		(-(love.keyboard.isDown("a") and 1 or 0) + (love.keyboard.isDown("d") and 1 or 0)) * 200 * dt,
 		(-(love.keyboard.isDown("w") and 1 or 0) + (love.keyboard.isDown("s") and 1 or 0)) * 200 * dt,
@@ -30,9 +52,8 @@ function love.update(dt)
 	if love.keyboard.isDown("e") then
 		local _bullets = how_many_bullets
 		while _bullets > 0 do
-			print("hm?")
 			local _bullet = bullet_manager:new(nil, { 400 * math.random(), 1600 * math.random() }, { 5, 0.5 }, 30)
-			print(table.concat(_bullet))
+			print_table(_bullet)
 			table.insert(tree_manager.item_groups.bullets, _bullet)
 			_bullets = _bullets - 1
 		end
@@ -49,7 +70,7 @@ function love.update(dt)
 	tree_manager.item_groups.enemies[1].collider[4] = tree_manager.item_groups.enemies[1].position[2]
 		+ tree_manager.item_groups.enemies[1].s[2]
 	tree_manager.item_groups.bullets = bullet_manager:move_bullets(tree_manager.bullets, dt)
-	tree_manager:clean()
+	tree_manager.item_groups = tree_manager:clean()
 end
 
 function love.draw()
