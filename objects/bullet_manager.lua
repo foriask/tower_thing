@@ -1,20 +1,22 @@
+require("objects.item_manager")
 bullet_manager = {}
 bullet_manager.__index = bullet_manager
-function bullet_manager:new(_sprite, _pos, _vel, _dmg, _cust, _cust_movement, _cust_collider_code, _cust_collider)
+function bullet_manager:new(_sprite, _pos, _vel, _dmg, _cust, _cust_movement, _cust_collider)
 	local _table = {
 		sprite = _sprite,
-		position = _pos,
+		position = _pos or { 0, 0, 0 },
 		velocity = _vel,
 		damage = _dmg or 0,
 		is_custom = _cust or false,
 		custom_seek = _cust_movement,
-		custom_collider_code = _cust_collider_code,
-		custom_collider = _cust_collider,
+		custom_collier = _cust_collider,
+		matrix_pos = 0,
 		-- Sprite is an existing sprite object.
 		-- Position is [1] (first) for x and y is [2]
 		-- Velocity is a vector from (0, 0) , x and y are the same
 		-- Custom setting are defined by the bullet in particular
 	}
+	-- "modify obj.custom_collider_code() as a function if custom_collider is enables ,3 (;3 - .)")
 	function _table:die()
 		return "no"
 		-- Originally, this function was "print("hewwo")". I liked that
@@ -39,7 +41,7 @@ function bullet_manager:collide(_bullets_pack, _enemies_pack, _towers_pack, _dt)
 	end
 	-- THIS IS NOT OPTIMIZED; WTF. PLS USE YOUR BRAIN. #######
 	local _new_bullet_pack = {}
-	for _i, _bullet in pairs(_bullets_pack) do
+	for _i, _bullet in ipairs(_bullets_pack) do
 		if _bullet ~= "clean" then -- Do not touch "clean" state. Those will be removed shortly.
 			if _bullet.is_custom then -- Custom things go by their custom methods.
 				_bullet.custom_collider(_bullets_pack, _enemies_pack, _towers_pack, _dt)
@@ -51,20 +53,48 @@ function bullet_manager:collide(_bullets_pack, _enemies_pack, _towers_pack, _dt)
 				end
 			end
 		end
-		table.insert(_new_bullet_pack, _bullet)
+		return _bullet
 	end
 	return _new_bullet_pack -- YES IT WORKS OH MY GOD
 end
 
-function bullet_manager:move_bullets(_bullets_pack, _dt)
-	if (not _bullets_pack) or #_bullets_pack == 0 then
+function bullet_manager:void_collide(_bullet, _matrix_pos) end
+
+function bullet_manager:collide(_bullets, _enemies, _towers, _dt)
+	if (not _bullets) or not #_bullets then
+		return {}
+	end
+	local _new_pack = {}
+	local _checks = {
+		0,
+		1,
+		-1,
+		tree_manager.base_mult + 1,
+		tree_manager.base_mult,
+		tree_manager.base_mult - 1,
+		-tree_manager.base_mult + 1,
+		-tree_manager.base_mult,
+		-tree_manager.base_mult - 1,
+	}
+	for _i, _bullet in ipairs(_bullets) do
+		for _number in ipairs(_checks) do
+			if tree_manager[_bullet.matrix_pos + _number] then
+				table.insert(_new_pack, self:void_collider(_bullet, _bullet.matrix_pos + _number))
+			end
+		end
+	end
+	return _new_pack
+end
+
+function bullet_manager:move(_bullets_pack, _dt)
+	if (not _bullets_pack) or not #_bullets_pack then
 		return {} -- The same as before
 	end
 	local _new_bullet_pack = {}
-	for _i, _bullet in pairs(_bullets_pack) do
+	for _i, _bullet in ipairs(_bullets_pack) do
 		if _bullet ~= "clean" then
 			if _bullet.is_custom then
-				_bullet:custmon_movement() -- custom things
+				_bullet:custom_movement() -- custom things
 			else
 				_bullet.position = sum_table(_bullet.position, _bullet.velocity) -- Yes, it just sums the velocity. Most of them are just constant velocities, why bother doing more?
 			end
@@ -76,6 +106,7 @@ function bullet_manager:move_bullets(_bullets_pack, _dt)
 				end
 			end -- Both borders check. One at a time for better performance (I don't know if that works... but it fell it)
 		end
+		print(_bullet)
 		table.insert(_new_bullet_pack, _bullet) -- wiwiwiwiwiwii
 	end
 	return _new_bullet_pack -- wawawa .3 (:3 - ·)
