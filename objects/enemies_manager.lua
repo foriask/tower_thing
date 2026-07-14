@@ -1,6 +1,7 @@
 enemies_manager = { enemies = {}, enemie_template = {} }
 function enemies_manager:set_enemie(_sprite, _pos, _siz, _hp, _colision, _acel)
 	local _enemie = {
+		type = "enemies",
 		collider = _colision or { type = "no" },
 		-- colision is a pretty much worthless thing.
 		-- Anyways, format:
@@ -11,13 +12,11 @@ function enemies_manager:set_enemie(_sprite, _pos, _siz, _hp, _colision, _acel)
 		hitpoints = _hp or 1,
 		position = _pos or { 0, 0, 1 },
 		matrix_pos = 0,
+		acel = _acel or { 0, 0 },
 		-- THE LAST DIGIT IN POS (3rd) IS USEFULL. It is used to know what kind of tower can kill it and what path to use.
 	}
 	function _enemie:damage(_dmg, _dt)
 		print("auch" .. _dmg)
-	end
-	if _pos[3] == 0 then
-		self.acel = _acel or { 0, 0 }
 	end
 	_enemie.__index = self.enemie_templante
 	table.insert(self.enemies, _enemie)

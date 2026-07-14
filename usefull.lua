@@ -21,6 +21,9 @@ function distance_2d(_pos1, _pos2)
 end
 function collision_raycast(_point, _line, _obj)
 	-- This wont be working for more than one second. Anyways, there you go.
+	if not _obj or not _point or not _obj.collider then
+		return
+	end
 	if _obj.collider.type == "c" then
 		-- _cuts is a value taht cuts the line into point to study. This works for almost all possible velocities and is pretty simple.
 		local _check_point = _point
