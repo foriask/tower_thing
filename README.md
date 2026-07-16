@@ -1,5 +1,5 @@
 # -- VERY EARLY DEVELOPMENT --
-# This is an unnamed try at tower defense games
+# This is an unnamed try at tower defense games based on Löve, a Lua game framework
 ### I'm not even sure why am I doing this, but for sure it will be impressive "Trust me" 
 
 To the point, I really like TDs, but there is a mayor issue with every one of them, they are usually almost no played at all.
