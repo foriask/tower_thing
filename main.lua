@@ -3,28 +3,33 @@ require("objects.enemies_manager")
 require("objects.item_manager")
 require("usefull")
 
-Fps = 0
+FPS = 0
+FRAMES = 0
+S05 = 0
+
 Bullet_count = 0
 How_many_bullets = 1
-
+Enemy_coun = 0
 function love.load()
+	tree_manager.magic_size = tree_manager:update_sizes()
 	tree_manager:index(enemies_manager:set_enemie(nil, { 20, 20, 0 }, 1, 1, { type = "c", radius = 20 }))
 	print(tree_manager.enemies[1])
 end
 
 function love.update(dt)
-	Fps = lerp(Fps, (1 / dt), 0.5)
-	local _player_move = {
-		(-(love.keyboard.isDown("a") and 1 or 0) + (love.keyboard.isDown("d") and 1 or 0)) * 200 * dt,
-		(-(love.keyboard.isDown("w") and 1 or 0) + (love.keyboard.isDown("s") and 1 or 0)) * 200 * dt,
-	}
-	tree_manager.enemies[1].acel = _player_move
-	How_many_bullets = How_many_bullets
-		+ (love.keyboard.isDown("t") and 1 or 0)
-		+ (love.keyboard.isDown("y") and -1 or 0)
+	S05 = S05 + dt
+	local future_FPS = lerp(FPS, 1 / dt, 0.5)
+	FPS = future_FPS - future_FPS % 0.1
+	FRAMES = math.fmod((FRAMES + 1), 4294967296)
 
+	if S05 > 0.5 then
+		print("hwo")
+		tree_manager.magic_size = tree_manager:update_sizes()
+		S05 = 0
+	end
 	if love.mouse.isDown(1) then
 		local _pos = { love.mouse.getX(), love.mouse.getY() }
+		Enemy_coun = Enemy_coun + 1
 		tree_manager:index(enemies_manager:set_enemie(nil, _pos, 10, 0, { type = "c", radius = 10 }))
 	end
 
@@ -36,6 +41,15 @@ function love.update(dt)
 			_bullets = _bullets - 1
 		end
 	end
+
+	local _player_move = {
+		(-(love.keyboard.isDown("a") and 1 or 0) + (love.keyboard.isDown("d") and 1 or 0)) * 200 * dt,
+		(-(love.keyboard.isDown("w") and 1 or 0) + (love.keyboard.isDown("s") and 1 or 0)) * 200 * dt,
+	}
+	tree_manager.enemies[1].acel = _player_move
+	How_many_bullets = How_many_bullets
+		+ (love.keyboard.isDown("t") and 1 or 0)
+		+ (love.keyboard.isDown("y") and -1 or 0)
 
 	-- A few functions that make the game work. I don't know why dont ask. Remember to use DT!
 
@@ -66,16 +80,18 @@ function love.draw()
 	-- enemies_manager:draw()
 	love.graphics.print({
 		{ 0.8, 0.3, 0.3, 255 },
-		Fps
-			.. " RAM(kb): "
+		FPS
+			.. " MEM.kb: "
 			.. math.floor(collectgarbage("count"))
-			.. "  Bullets: "
+			.. " <> Bullets: "
 			.. #tree_manager.bullets
-			.. " "
+			.. " Qtt: "
 			.. How_many_bullets
-			.. "Draw calls: "
+			.. " Enemies: "
+			.. Enemy_coun
+			.. " D. C. : "
 			.. love.graphics.getStats().drawcalls
-			.. " "
+			.. " VMem: "
 			.. love.graphics.getStats().texturememory,
 	}, 20, 20)
 end

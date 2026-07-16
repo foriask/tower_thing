@@ -30,69 +30,54 @@ end
 
 function bullet_manager:bullet_death(_bullet, _obj, _here, _dt)
 	if _obj and _obj.type == "enemy" then
-		_obj:damage(_bullet.damage)
+		_obj:damage(_bullet.damage, _here, _dt)
 	end
-	_bullet.die(_dt)
+	_bullet.die(_here, _dt)
 	_bullet = "clean"
 	return _bullet
 end
 
-function bullet_manager:void_collide(_bullet, _matrix_pos, _magic_number, _dt)
-	local _collision_list = {}
-	if not tree_manager.matrix[_matrix_pos] then
-		return
-	end
+function bullet_manager:void_collide(_bullet, _matrix_pos, _dt)
 	for _i, _thing in ipairs(tree_manager.matrix[_matrix_pos]) do
 		if tree_manager[_thing[2]] and (#tree_manager[_thing[2]] >= _thing[1]) then
 			local _obj = tree_manager[_thing[2]][_thing[1]]
-			if _obj ~= "clean" and _bullet ~= "clean" then
+			if _obj ~= "clean" then
+				local _collision_list = {}
 				local _collide, _here = collision_raycast(_bullet.position, _bullet.velocity, _obj)
 				if _collide and not _collision_list.collide then
-					_collision_list.collide = true
-					_collision_list[1] = _here
-					_collision_list[2] = _obj
+					_collision_list[1] = _obj
+					_collision_list[2] = _here
+					return true, _collision_list
 				end
 			end
 		end
 	end
-	return _collision_list
+	return false
 end
 
-function bullet_manager:collide(_bullets, _enemies, _towers, _dt)
+function bullet_manager:check_matrix(_bullet, _number, _dt)
+	local _matri_pos = _bullet.matrix_pos + _number
+	if tree_manager.matrix[_matri_pos] then
+		local _collide, _pack = self:void_collide(_bullet, _matri_pos, _dt)
+		if _collide then
+			return true, _pack
+		end
+	end
+	return false, {}
+end
+
+function bullet_manager:collide(_bullets, _dt)
 	if (not _bullets) or not #_bullets then
 		return {}
 	end
-	local _magic_screen_size = math.sqrt(math.exp(love.graphics.getWidth()) + math.exp(love.graphics.getHeight())) / 20
 	local _new_pack = {}
-	local _checks = { 0, 1, -1, tree_manager.base_size, -tree_manager.base_size }
-	--[[ local _checks = {
-		0,
-		1,
-		-1,
-		tree_manager.base_mult + 1,
-		tree_manager.base_mult,
-		tree_manager.base_mult - 1,
-		-tree_manager.base_mult + 1,
-		-tree_manager.base_mult,
-		-tree_manager.base_mult - 1,
-	} ]]
+
 	for _i, _bullet in ipairs(_bullets) do
-		local _collision_pack = {}
 		if _bullet ~= "clean" then
-			for _number in ipairs(_checks) do
-				local _matri_pos = _bullet.matrix_pos + _number
-				if tree_manager.matrix[_matri_pos] then
-					local _pack = self:void_collide(_bullet, _matri_pos, _magic_screen_size, _dt)
-					if _pack.collide then
-						_collision_pack = _pack
-						goto next
-					end
-				end
+			local _collide, _pack = self:check_matrix(_bullet, 0, _dt)
+			if _collide then
+				_bullet = self:bullet_death(_bullet, _pack[1], _pack[2])
 			end
-			::next::
-			_bullet = _collision_pack.collide
-					and self:bullet_death(_bullet, _collision_pack[2], _collision_pack[1], _dt)
-				or _bullet
 			_new_pack[#_new_pack + 1] = _bullet
 		end
 	end

@@ -31,7 +31,7 @@ end
 function enemies_manager:move(_enemies, _dt)
 	local _new_pack = {}
 	for _i, _enemie in pairs(_enemies) do
-		if _enemie.position[3] == 0 then
+		if _enemie.position[3] == 0 and _enemie ~= "clean" then
 			_enemie.position[1] = _enemie.position[1] + _enemie.acel[1] * _dt * 300
 			_enemie.position[2] = _enemie.position[2] + _enemie.acel[2] * _dt * 300
 		else
