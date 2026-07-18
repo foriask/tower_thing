@@ -18,6 +18,9 @@ function enemies_manager:set_enemie(_sprite, _pos, _siz, _hp, _colision, _acel)
 	function _enemie:damage(_dmg, _dt)
 		print("auch" .. _dmg)
 	end
+	if _enemie.collider.radius then
+		_enemie.collider.powradius = math.pow(_enemie.collider.radius, 2)
+	end
 	_enemie.__index = self.enemie_templante
 	table.insert(self.enemies, _enemie)
 	return _enemie
@@ -32,8 +35,8 @@ function enemies_manager:move(_enemies, _dt)
 	local _new_pack = {}
 	for _i, _enemie in pairs(_enemies) do
 		if _enemie.position[3] == 0 and _enemie ~= "clean" then
-			_enemie.position[1] = _enemie.position[1] + _enemie.acel[1] * _dt * 300
-			_enemie.position[2] = _enemie.position[2] + _enemie.acel[2] * _dt * 300
+			_enemie.position[1] = _enemie.position[1] + (_enemie.acel[1] * _dt * 500)
+			_enemie.position[2] = _enemie.position[2] + (_enemie.acel[2] * _dt * 500)
 		else
 		end
 		table.insert(_new_pack, _enemie)

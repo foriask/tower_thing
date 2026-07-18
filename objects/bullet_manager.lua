@@ -19,7 +19,6 @@ function bullet_manager:new(_sprite, _pos, _vel, _dmg, _cust, _cust_movement, _c
 	}
 
 	-- "modify obj.custom_collider_code() as a function if custom_collider is enables ,3 (;3 - .)")
-
 	function _table:die()
 		return "no"
 		-- Originally, this function was "print("hewwo")". I liked that
@@ -89,12 +88,15 @@ function bullet_manager:move(_bullets_pack, _dt)
 		return {} -- The same as before
 	end
 	local _new_bullet_pack = {}
-	for _i, _bullet in ipairs(_bullets_pack) do
+	local _i = 1
+	for _a, _bullet in ipairs(_bullets_pack) do
 		if _bullet ~= "clean" then
 			if _bullet.is_custom then
 				_bullet:custom_movement() -- custom things
 			else
-				_bullet.position = sum_table(mult_num_table(_dt, _bullet.velocity), _bullet.position) -- Yes, it just sums the velocity. Most of them are just constant velocities, why bother doing more?
+				_bullet.position =
+					{ _bullet.velocity[1] * _dt + _bullet.position[1], _bullet.velocity[2] * _dt + _bullet.position[2] }
+				-- Yes, it just sums the velocity. Most of them are just constant velocities, why bother doing more?
 				-- THE ORDER IS PRETTY RELEVANT THERE, ADVISE: DON'T WORK WITH ME.
 			end
 			if _bullet.position[1] > (love.graphics.getPixelWidth() + 100) or _bullet.position[1] < -100 then
@@ -104,8 +106,9 @@ function bullet_manager:move(_bullets_pack, _dt)
 					_bullet = bullet_manager:bullet_death(_bullet, false, _dt)
 				end
 			end -- Both borders check. One at a time for better performance (I don't know if that works... but it fell it)
+			_new_bullet_pack[_i] = _bullet -- this is faster? lmao
+			_i = _i + 1
 		end
-		table.insert(_new_bullet_pack, _bullet) -- wiwiwiwiwiwii
 	end
 	return _new_bullet_pack -- wawawa .3 (:3 - ·)
 end

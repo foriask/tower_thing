@@ -2,9 +2,11 @@ require("objects.bullet_manager")
 require("objects.enemies_manager")
 require("objects.item_manager")
 require("usefull")
+require("player.controller")
 
 FPS = 0
 FRAMES = 0
+TIME = 0
 S05 = 0
 
 Bullet_count = 0
@@ -18,38 +20,21 @@ end
 
 function love.update(dt)
 	S05 = S05 + dt
+	TIME = TIME + dt
+
 	local future_FPS = lerp(FPS, 1 / dt, 0.5)
 	FPS = future_FPS - future_FPS % 0.1
-	FRAMES = math.fmod((FRAMES + 1), 4294967296)
+	FRAMES = FRAMES + 1
 
+	-- A handful of variables
+	-- Automatic timers for routinaty checks, just ignore them if you are not using them, lmao
 	if S05 > 0.5 then
 		print("hwo")
 		tree_manager.magic_size = tree_manager:update_sizes()
 		S05 = 0
 	end
-	if love.mouse.isDown(1) then
-		local _pos = { love.mouse.getX(), love.mouse.getY() }
-		Enemy_coun = Enemy_coun + 1
-		tree_manager:index(enemies_manager:set_enemie(nil, _pos, 10, 0, { type = "c", radius = 10 }))
-	end
 
-	if love.keyboard.isDown("e") then
-		local _bullets = How_many_bullets
-		while _bullets > 0 do
-			local _bullet = bullet_manager:new(nil, { 400 * math.random(), 1600 * math.random(), 0 }, { 100, 40 }, 30)
-			tree_manager:index(_bullet)
-			_bullets = _bullets - 1
-		end
-	end
-
-	local _player_move = {
-		(-(love.keyboard.isDown("a") and 1 or 0) + (love.keyboard.isDown("d") and 1 or 0)) * 200 * dt,
-		(-(love.keyboard.isDown("w") and 1 or 0) + (love.keyboard.isDown("s") and 1 or 0)) * 200 * dt,
-	}
-	tree_manager.enemies[1].acel = _player_move
-	How_many_bullets = How_many_bullets
-		+ (love.keyboard.isDown("t") and 1 or 0)
-		+ (love.keyboard.isDown("y") and -1 or 0)
+	controller:control(TIME)
 
 	-- A few functions that make the game work. I don't know why dont ask. Remember to use DT!
 
@@ -94,4 +79,12 @@ function love.draw()
 			.. " VMem: "
 			.. love.graphics.getStats().texturememory,
 	}, 20, 20)
+end
+
+function love.keypressed(_key, _scancode, _isrepeat)
+	controller:check_keys(nil, nil, _key, TIME)
+end
+
+function love.mousepressed(_x, _y, _button)
+	controller:check_keys(_x, _y, _button, TIME)
 end
