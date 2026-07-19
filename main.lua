@@ -9,30 +9,26 @@ FRAMES = 0
 TIME = 0
 S05 = 0
 
-Bullet_count = 0
-How_many_bullets = 1
-Enemy_coun = 0
+-- DEBUG - DEBUG - DEBUG
+-- DEBUG - DEBUG - DEBUG
+
 function love.load()
+	love.filesystem.setIdentity("Copperwire")
+
+	-- Init data: mainly init for the tree manager and so on. Idk
 	tree_manager.magic_size = tree_manager:update_sizes()
 	tree_manager:index(enemies_manager:set_enemie(nil, { 20, 20, 0 }, 1, 1, { type = "c", radius = 20 }))
-	print(tree_manager.enemies[1])
+
+	-- This thing is for the controls. They exist.
+	controller:loadmap()
 end
 
 function love.update(dt)
-	S05 = S05 + dt
 	TIME = TIME + dt
 
 	local future_FPS = lerp(FPS, 1 / dt, 0.5)
 	FPS = future_FPS - future_FPS % 0.1
 	FRAMES = FRAMES + 1
-
-	-- A handful of variables
-	-- Automatic timers for routinaty checks, just ignore them if you are not using them, lmao
-	if S05 > 0.5 then
-		print("hwo")
-		tree_manager.magic_size = tree_manager:update_sizes()
-		S05 = 0
-	end
 
 	controller:control(TIME)
 
@@ -70,15 +66,17 @@ function love.draw()
 			.. math.floor(collectgarbage("count"))
 			.. " <> Bullets: "
 			.. #tree_manager.bullets
-			.. " Qtt: "
-			.. How_many_bullets
 			.. " Enemies: "
-			.. Enemy_coun
+			.. #tree_manager.enemies
 			.. " D. C. : "
 			.. love.graphics.getStats().drawcalls
 			.. " VMem: "
 			.. love.graphics.getStats().texturememory,
 	}, 20, 20)
+end
+
+function love.resize(w, h)
+	tree_manager.magic_size = tree_manager:update_sizes()
 end
 
 function love.keypressed(_key, _scancode, _isrepeat)
