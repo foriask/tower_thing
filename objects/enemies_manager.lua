@@ -1,5 +1,5 @@
 enemies_manager = { enemies = {}, enemie_template = {} }
-function enemies_manager:set_enemie(_sprite, _pos, _siz, _hp, _colision, _acel)
+function enemies_manager:new(_sprite, _pos, _siz, _hp, _colision, _acel)
 	local _enemie = {
 		type = "enemies",
 		collider = _colision or { type = "no" },

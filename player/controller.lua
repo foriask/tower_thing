@@ -1,5 +1,3 @@
-require("player.settings")
-
 controller = {}
 controller.keymap = {}
 controller.functions = {}
@@ -11,7 +9,7 @@ controller.multiple_keys = false
 controller.key_timer = 0
 
 function controller:loadmap()
-	if not love.filesystem.read("controls.lua") then
+	if not love.filesystem.getInfo("controls.lua") then
 		self.keymap = dofile("player/defaults.lua")
 	else
 		local _keys_path = love.filesystem.read("controls.lua")
@@ -25,7 +23,6 @@ end
 
 function controller:check_keys(_x, _y, _key, _time) -- This is used both for keyboard and mouse (maybe even controller)
 	if self.is_checking then
-		print("hewo")
 		if self.key_timer == 0 then
 			-- Inizialize, picking the first character whatever it is
 			self.key_timer = _time
@@ -71,7 +68,7 @@ function controller:save()
 	if not self.is_checking and #self.key_picked then
 		if self.multiple_keys then
 			if type(control_map[self.function_picked][1]) ~= "table" then
-				control_map[self.function_picked] = { control_map[self.function_picked][1] }
+				control_map[self.function_picked] = { control_map[self.function_picked][1] } -- Just double it bcs it can be multiple controls ^^
 			end
 			self.keymap[self.function_picked][self.multiple_keys] = self.key_picked
 		end
@@ -107,8 +104,6 @@ function controller:save()
 		_string = _string .. "}\nreturn table"
 		-- what the hell was that? Idk
 		-- It works though
-		print(_string)
-		print(love.filesystem.write("controls.lua", _string))
 
 		-- RESET to stop iterating.
 		self.multiple_keys = false
@@ -135,27 +130,29 @@ function controller:void_control(_keys)
 		--
 	end
 
-	return _pressed == _buttons
+	return _pressed == _buttons, _buttons
 end
 
 function controller:control(_time)
 	if not self.keymap then
 		return
 	end
-	local _pressed = false
+	local _pressed = { false, 0 }
 	for _function, _keys in pairs(self.keymap) do
-		print(table.concat(_keys))
 		if type(_keys[1]) == "table" then
 			for _i, _keys2 in ipairs(_keys) do
 				local _yes = self:void_control(_keys2)
 				_pressed = _pressed or _yes
 			end
 		else
-			_pressed = self:void_control(_keys)
+			local _is_pressed, _buttons = self:void_control(_keys)
+			if _is_pressed and _buttons > _pressed[2] then
+				_pressed = { true, _buttons, _function }
+			end
 		end
-		if _pressed then
-			self.functions[_function](love.mouse:getX(), love.mouse:getY())
-		end
+	end
+	if _pressed[1] then
+		self.functions[_pressed[3]](self, love.mouse:getX(), love.mouse:getY())
 	end
 end
 

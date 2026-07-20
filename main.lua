@@ -17,7 +17,6 @@ function love.load()
 
 	-- Init data: mainly init for the tree manager and so on. Idk
 	tree_manager.magic_size = tree_manager:update_sizes()
-	tree_manager:index(enemies_manager:set_enemie(nil, { 20, 20, 0 }, 1, 1, { type = "c", radius = 20 }))
 
 	-- This thing is for the controls. They exist.
 	controller:loadmap()

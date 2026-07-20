@@ -1,22 +1,37 @@
 require("objects.item_manager")
 bullet_manager = {}
 bullet_manager.__index = bullet_manager
-function bullet_manager:new(_sprite, _pos, _vel, _dmg, _cust, _cust_movement, _cust_collider)
-	local _table = {
-		type = "bullets",
-		sprite = _sprite,
-		position = _pos or { 0, 0, 0 },
-		velocity = _vel or { 0, 0 },
-		damage = _dmg or 0,
-		is_custom = _cust or false,
-		custom_seek = _cust_movement,
-		custom_collier = _cust_collider,
-		matrix_pos = 0,
-		-- Sprite is an existing sprite object.
-		-- Position is [1] (first) for x and y is [2]
-		-- Velocity is a vector from (0, 0) , x and y are the same
-		-- Custom setting are defined by the bullet in particular
-	}
+function bullet_manager:new(_preset, _sprite, _pos, _vel, _dmg, _cust, _cust_movement, _cust_collider)
+	local _table = {}
+	if _preset then
+		_table = {
+			type = "bullets",
+			sprite = _preset[1],
+			position = _preset[2] or { 0, 0, 0 },
+			velocity = _preset[3] or { 0, 0 },
+			damage = _preset[4] or 0,
+			is_custom = _preset[5] or false,
+			custom_seek = _preset[6] or false,
+			custom_collier = _preset[7] or false,
+			matrix_pos = 0,
+		}
+	else
+		_table = {
+			type = "bullets",
+			sprite = _sprite,
+			position = _pos or { 0, 0, 0 },
+			velocity = _vel or { 0, 0 },
+			damage = _dmg or 0,
+			is_custom = _cust or false,
+			custom_seek = _cust_movement,
+			custom_collier = _cust_collider,
+			matrix_pos = 0,
+			-- Sprite is an existing sprite object.
+			-- Position is [1] (first) for x and y is [2]
+			-- Velocity is a vector from (0, 0) , x and y are the same
+			-- Custom setting are defined by the bullet in particular
+		}
+	end
 
 	-- "modify obj.custom_collider_code() as a function if custom_collider is enables ,3 (;3 - .)")
 	function _table:die()
