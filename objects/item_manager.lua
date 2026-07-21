@@ -13,7 +13,7 @@ function tree_manager:update_sizes()
 end
 
 function tree_manager:convert_to_matrix(_obj)
-	-- Get a key number for the matrix, which is 1D, vs a 2.5D world lmao
+	-- Get a key number for the matrix, which is 1D, vs a 3D world lmao
 	local _a = _obj.position[1] / self.magic_size[1]
 	local _b = (_obj.position[2] / self.magic_size[2]) * self.base_size
 	return (_a - _a % 1) + (_b - _b % 1)
@@ -39,6 +39,7 @@ function tree_manager:update_w_matrix()
 		if type(_group) == "table" then
 			for _i, _obj in ipairs(_group) do
 				if _obj ~= "clean" and type(_obj) == "table" and _obj.type then
+					-- I don't know for sure, but I guess this is how it detects the objects (is it?)
 					local _index = self:convert_to_matrix(_obj)
 					local _thing = { _i, _obj.type }
 					_obj.matrix_pos = _index

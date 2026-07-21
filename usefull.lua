@@ -20,8 +20,8 @@ function distance_2d(_pos1, _pos2)
 	return _distance
 end
 function powdistance_2d(_pos1, _pos2)
-	local _distance = math.abs(((_pos1[1] - _pos2[1]) ^ 2) + ((_pos1[2] - _pos2[2]) ^ 2))
-	return _distance
+	local _distance_raw = (((_pos1[1] - _pos2[1]) ^ 2) + ((_pos1[2] - _pos2[2]) ^ 2))
+	return _distance_raw - _distance_raw % 1
 end
 function collision_raycast(_point, _line, _obj)
 	-- This wont be working for more than one second. Anyways, there you go.
@@ -30,12 +30,12 @@ function collision_raycast(_point, _line, _obj)
 	end
 	if _obj.collider.type == "c" then
 		-- _cuts is a value taht cuts the line into point to study. This works for almost all possible velocities and is pretty simple.
-		local _check_point = _point
 		-- Mult x the cuts. Just get a bunch of point
-		if not (powdistance_2d(_check_point, _obj.position) <= _obj.collider.powradius) then
+		-- Dont ask how "powdistance_2d" works. Just trust the process.
+		if not (powdistance_2d(_point, _obj.position) <= _obj.collider.powradius) then
 			return
 		end
-		return true, _check_point, _obj
+		return true, _point, _obj
 	end
 	-- Circles are simple. collider.radius iws necesary though. This just checks it the lazy way, point - circle. This is just fine for most of uses. Also scales with the speed/fps ratio to avoid problems.
 	if _obj.collider.type == "s" then

@@ -6,7 +6,7 @@ require("objects.item_manager")
 map_manager = {
 	size = { 8, 8 },
 	scale = { 8, 8 },
-	tile_size = 64,
+	tile_size = 70,
 	margin = { 0, 0 },
 }
 

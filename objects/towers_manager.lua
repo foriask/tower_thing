@@ -1,12 +1,13 @@
 tower_manager = {}
-function tower_manager:new(_sprite, _pos, _modifiers, _bullet)
+function tower_manager:new(_sprite, _pos, _dir, _modifiers, _bullet)
 	local _table = {
 		type = "towers",
 		sprite = _sprite,
 		position = _pos or { 0, 0, 0 },
 		modifiers = _modifiers
 			or { shot_speed = 1, bullet_quantity = 1, spatial_spread = 0, time_spread = 0, special = { [1] = none } }, -- Shot speed -> seconds - Specials are defined somewhere idk
-		bullet = _bullet or {},
+		bullet = _bullet or { nil, { 0, 0, 1 }, { 0, 0 }, 0 },
+		direction = _dir or { 0, 0 },
 		matrix_pos = 0,
 		-- Sprite is an existing sprite object (MORE THAN LÖVE IMAGE OBJ.).
 		-- Position is [1] (first) for x and y is [2]
