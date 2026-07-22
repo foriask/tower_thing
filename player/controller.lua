@@ -104,7 +104,8 @@ function controller:save()
 		_string = _string .. "}\nreturn table"
 		-- what the hell was that? Idk
 		-- It works though
-		love.filesystem.write("controls.lua", _string)
+
+		-- love.filesystem.write("controls.lua", _string)
 
 		-- RESET to stop iterating.
 		self.multiple_keys = false

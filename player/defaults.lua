@@ -8,6 +8,7 @@ control_map = {
 	debug_place_enemy = { "e", "mouse", "1" },
 	set_setting_debug = { 1 },
 	debug_place_bullet = { "mouse", "1" },
+	debug_place_tower = { "r", "mouse", "1" },
 	-- debug_two = { "e", "shift" },
 }
 

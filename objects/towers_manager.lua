@@ -1,3 +1,4 @@
+require("map.map_manager")
 tower_manager = {}
 function tower_manager:new(_sprite, _pos, _dir, _modifiers, _bullet)
 	local _table = {
@@ -23,8 +24,8 @@ function tower_manager:new(_sprite, _pos, _dir, _modifiers, _bullet)
 	return _table
 end
 
-function map_manager:draw(_time)
-	for _i, _obj in ipairs(tree_manager.towers) do
+function tower_manager:draw(_time, _towers)
+	for _i, _obj in ipairs(_towers) do
 		if _obj.sprite then
 		else
 			love.graphics.rectangle(

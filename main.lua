@@ -1,6 +1,7 @@
 require("objects.bullet_manager")
 require("objects.enemies_manager")
 require("objects.item_manager")
+require("objects.towers_manager")
 require("usefull")
 require("player.controller")
 
@@ -19,6 +20,7 @@ function love.load()
 	tree_manager.magic_size = tree_manager:update_sizes()
 
 	-- This thing is for the controls. They exist.
+	map_manager:init()
 	controller:loadmap()
 end
 
@@ -49,14 +51,11 @@ function love.draw()
 		tree_manager.item_groups.enemies[1].position[2],
 		tree_manager.item_groups.enemies[1].collider.radius
 	)]]
-	enemies_manager:draw(tree_manager.enemies)
-	if #tree_manager.bullets ~= 0 then
-		for _i, _obj in ipairs(tree_manager.bullets) do
-			if _obj ~= "clean" then
-				love.graphics.circle("fill", _obj.position[1], _obj.position[2], 4)
-			end
-		end
-	end
+	enemies_manager:draw(TIME, tree_manager.enemies)
+	tower_manager:draw(TIME, tree_manager.towers)
+	bullet_manager:draw(TIME, tree_manager.enemies)
+
+	map_manager:draw(TIME)
 	-- enemies_manager:draw()
 	love.graphics.print({
 		{ 0.8, 0.3, 0.3, 255 },

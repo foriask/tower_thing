@@ -15,14 +15,17 @@ function mult_num_table(_num, _table)
 	end
 	return _finished_table
 end
+
 function distance_2d(_pos1, _pos2)
 	local _distance = math.sqrt(math.abs(math.pow(_pos1[1] - _pos2[1], 2) + math.pow(_pos1[2] - _pos2[2], 2)))
 	return _distance
 end
+
 function powdistance_2d(_pos1, _pos2)
 	local _distance_raw = (((_pos1[1] - _pos2[1]) ^ 2) + ((_pos1[2] - _pos2[2]) ^ 2))
 	return _distance_raw - _distance_raw % 1
 end
+
 function collision_raycast(_point, _line, _obj)
 	-- This wont be working for more than one second. Anyways, there you go.
 	if not _obj or not _point or not _obj.collider then

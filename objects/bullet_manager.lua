@@ -127,3 +127,18 @@ function bullet_manager:move(_bullets_pack, _dt)
 	end
 	return _new_bullet_pack -- wawawa .3 (:3 - ·)
 end
+
+function bullet_manager:draw(_time, _bullets)
+	if #_bullets == 0 then
+		return
+	end
+	for _i, _obj in ipairs(tree_manager.bullets) do
+		if _obj == "clean" then
+			return
+		end
+		if _obj.sprite then
+		else
+			love.graphics.circle("fill", _obj.position[1], _obj.position[2], 4)
+		end
+	end
+end
