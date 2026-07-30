@@ -2,7 +2,7 @@ require("objects.bullet_manager")
 require("objects.enemies_manager")
 require("objects.item_manager")
 require("objects.towers_manager")
-require("usefull")
+require("usefull.usefull")
 require("player.controller")
 
 FPS = 0
@@ -17,10 +17,12 @@ function love.load()
 	love.filesystem.setIdentity("Copperwire")
 
 	-- Init data: mainly init for the tree manager and so on. Idk
-	tree_manager.magic_size = tree_manager:update_sizes()
+	tree_manager:update_sizes()
 
+	tree_manager.matrix.bullets = {}
 	-- This thing is for the controls. They exist.
-	map_manager:init()
+	map_manager:optimized_calc()
+	map_manager:create_grid()
 	controller:loadmap()
 end
 
@@ -40,23 +42,17 @@ function love.update(dt)
 	tree_manager.enemies = enemies_manager:move(tree_manager.enemies, dt)
 	tree_manager.bullets = bullet_manager:move(tree_manager.bullets, dt)
 
-	local _new_tree_manager = tree_manager:update_w_matrix(tree_manager)
-	tree_manager:internal_update(_new_tree_manager)
+	tree_manager:update_w_matrix()
 end
 
 function love.draw()
-	--[[love.graphics.circle(
-		"fill",
-		tree_manager.item_groups.enemies[1].position[1],
-		tree_manager.item_groups.enemies[1].position[2],
-		tree_manager.item_groups.enemies[1].collider.radius
-	)]]
-	enemies_manager:draw(TIME, tree_manager.enemies)
-	tower_manager:draw(TIME, tree_manager.towers)
-	bullet_manager:draw(TIME, tree_manager.enemies)
+	map_manager:draw_grid(TIME)
 
-	map_manager:draw(TIME)
-	-- enemies_manager:draw()
+	tower_manager:draw(TIME, tree_manager.towers)
+	bullet_manager:draw(TIME, tree_manager.bullets)
+	enemies_manager:draw(TIME, tree_manager.enemies)
+
+	-- DEBUG
 	love.graphics.print({
 		{ 0.8, 0.3, 0.3, 255 },
 		FPS
@@ -74,7 +70,8 @@ function love.draw()
 end
 
 function love.resize(w, h)
-	tree_manager.magic_size = tree_manager:update_sizes()
+	tree_manager:update_sizes()
+	map_manager:optimized_calc()
 end
 
 function love.keypressed(_key, _scancode, _isrepeat)

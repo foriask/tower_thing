@@ -1,4 +1,5 @@
 require("objects.item_manager")
+require("usefull.usefull")
 bullet_manager = {}
 bullet_manager.__index = bullet_manager
 function bullet_manager:new(_preset, _sprite, _pos, _vel, _dmg, _cust, _cust_movement, _cust_collider)
@@ -42,58 +43,89 @@ function bullet_manager:new(_preset, _sprite, _pos, _vel, _dmg, _cust, _cust_mov
 	return _table
 end
 
-function bullet_manager:bullet_death(_bullet, _obj, _here, _dt)
+function bullet_manager:death(_bullet, _obj, _here, _dt)
 	if _obj and _obj.type == "enemy" then
 		_obj:damage(_bullet.damage, _here, _dt)
 	end
 	_bullet.die(_here, _dt)
-	_bullet = "clean"
-	return _bullet
+	return "clean"
 end
 
-function bullet_manager:void_collide(_bullet, _matrix_pos, _dt)
-	for _i, _thing in ipairs(tree_manager.matrix[_matrix_pos]) do
-		if tree_manager[_thing[2]] and (#tree_manager[_thing[2]] >= _thing[1]) then
-			local _obj = tree_manager[_thing[2]][_thing[1]]
-			if _obj ~= "clean" then
-				local _collision_list = {}
-				local _collide, _here = collision_raycast(_bullet.position, _bullet.velocity, _obj)
-				if _collide and not _collision_list.collide then
-					_collision_list[1] = _obj
-					_collision_list[2] = _here
-					return true, _collision_list
-				end
-			end
-		end
-	end
-	return false
-end
+function bullet_manager:collision_raycast(_obj1, _obj2)
+	-- _obj1 -> bullet / simple obj
+	-- _obj2 -> enemies / complex obj
 
-function bullet_manager:check_matrix(_bullet, _number, _dt)
-	local _matri_pos = _bullet.matrix_pos + _number
-	if tree_manager.matrix[_matri_pos] then
-		local _collide, _pack = self:void_collide(_bullet, _matri_pos, _dt)
-		if _collide then
-			return true, _pack
+	if _obj2.collider.type == "c" then
+		-- Dont ask how "powdistance_2d" works. Just trust the process.
+
+		local _distance = powdistance_2d(_obj1.position, _obj2.position)
+		if _distance == 0 or _distance <= _obj2.collider.radius then
+			print(_distance)
+			return true, _obj1.position
 		end
+
+		-- I should make that better
 	end
-	return false, {}
+	-- Circles are simple. collider.radius iws necesary though. This just checks it the lazy way, point - circle. This is just fine for most of uses. Also scales with the speed/fps ratio to avoid problems.
+	if _obj2.collider.type == "s" then
+		local _check_point = _obj1.position
+		local _horizon_check_1 = ((_check_point[1] < _obj2.collider[3]) and (_check_point[1] > _obj2.collider[1]))
+		if not _horizon_check_1 then
+			return false
+		end
+		local _vertical_check_1 = ((_check_point[2] < _obj2.collider[4]) and (_check_point[2] > _obj2.collider[2]))
+		if not _vertical_check_1 then
+			return
+		end
+		return true, _check_point
+		-- VIVO BIEN...  ME RINDO. LOD pero más difícil¿?
+	end
 end
 
 function bullet_manager:collide(_bullets, _dt)
-	if (not _bullets) or not #_bullets then
-		return {}
-	end
-	local _new_pack = {}
-
-	for _i, _bullet in ipairs(_bullets) do
-		if _bullet ~= "clean" then
-			local _collide, _pack = self:check_matrix(_bullet, 0, _dt)
-			if _collide then
-				_bullet = self:bullet_death(_bullet, _pack[1], _pack[2])
-			end
-			_new_pack[#_new_pack + 1] = _bullet
+	local _new_pack = _bullets
+	local _i = 0
+	while _i < (tree_manager.base_size * tree_manager.base_size) do
+		if not tree_manager.matrix.bullets or not tree_manager.matrix.bullets[_i] then
+			goto fuck
 		end
+		for _e, _bullet_id in ipairs(tree_manager.matrix.bullets[_i]) do
+			local _obj = {}
+			local _real_point = {}
+			local _collision = false
+			local _bullet = tree_manager.bullets[_bullet_id]
+			if _bullet and _bullet == "clean" then
+				goto next_bullet
+			end
+			local _target = _bullet.target
+			if _target then
+				for _e, _target in ipairs(_target) do
+					if tree_manager.matrix[_target][_i] then
+						for _a, _possible in ipairs(tree_manager.matrix[_target][_i]) do
+							local _maybe_collision, _point =
+								self:collision_raycast(_bullet, tree_manager[_target][_possible])
+							_collision = _collision or _maybe_collision
+							_obj = _collision and _possible or _obj
+							_real_point = _collision and _point or _real_point
+						end
+					end
+				end
+			elseif tree_manager.matrix.enemies and tree_manager.matrix.enemies[_i] then
+				for _a, _possible in ipairs(tree_manager.matrix.enemies[_i]) do
+					local _maybe_collision, _point = self:collision_raycast(_bullet, tree_manager.enemies[_possible])
+					_collision = _collision or _maybe_collision
+					_obj = _collision and _possible or _obj
+					_real_point = _collision and _point or _real_point
+				end
+			end
+			if _collision then
+				_new_pack[_bullet_id] =
+					bullet_manager:death(_bullet, tree_manager[_target or "enemies"][_obj], _real_point)
+			end
+			::next_bullet::
+		end
+		::fuck::
+		_i = _i + 1
 	end
 	return _new_pack
 end
@@ -115,10 +147,10 @@ function bullet_manager:move(_bullets_pack, _dt)
 				-- THE ORDER IS PRETTY RELEVANT THERE, ADVISE: DON'T WORK WITH ME.
 			end
 			if _bullet.position[1] > (love.graphics.getPixelWidth() + 100) or _bullet.position[1] < -100 then
-				_bullet = bullet_manager:bullet_death(_bullet, false, _dt)
+				_bullet = bullet_manager:death(_bullet, false, _dt)
 			else
 				if _bullet.position[2] > (love.graphics.getPixelHeight() + 100) or _bullet.position[2] < -100 then
-					_bullet = bullet_manager:bullet_death(_bullet, false, _dt)
+					_bullet = bullet_manager:death(_bullet, false, _dt)
 				end
 			end -- Both borders check. One at a time for better performance (I don't know if that works... but it fell it)
 			_new_bullet_pack[_i] = _bullet -- this is faster? lmao
@@ -132,7 +164,7 @@ function bullet_manager:draw(_time, _bullets)
 	if #_bullets == 0 then
 		return
 	end
-	for _i, _obj in ipairs(tree_manager.bullets) do
+	for _i, _obj in ipairs(_bullets) do
 		if _obj == "clean" then
 			return
 		end

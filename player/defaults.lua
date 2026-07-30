@@ -9,6 +9,7 @@ control_map = {
 	set_setting_debug = { 1 },
 	debug_place_bullet = { "mouse", "1" },
 	debug_place_tower = { "r", "mouse", "1" },
+	debug_change_map = { "mouse", "2" },
 	-- debug_two = { "e", "shift" },
 }
 
