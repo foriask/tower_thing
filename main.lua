@@ -4,6 +4,7 @@ require("objects.item_manager")
 require("objects.towers_manager")
 require("usefull.usefull")
 require("player.controller")
+require("usefull.animation_manager")
 
 FPS = 0
 FRAMES = 0
@@ -18,7 +19,7 @@ function love.load()
 
 	-- Init data: mainly init for the tree manager and so on. Idk
 	tree_manager:update_sizes()
-
+	animation_manager:initialize()
 	tree_manager.matrix.bullets = {}
 	-- This thing is for the controls. They exist.
 	map_manager:optimized_calc()

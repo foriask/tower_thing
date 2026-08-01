@@ -1,4 +1,5 @@
 -- The map is mainly used to know how and where to put everything in place, that involves a lot of drawing and that sort of things
+love.graphics.setDefaultFilter("nearest")
 -- The following things are used for that (it will work fine with different sizes, please.)
 --
 require("objects.item_manager")
@@ -10,6 +11,7 @@ map_manager = {
 	tile_size = 64, -- size in pixels of each tile
 	margin = { 0, 0 }, -- magin from every size, first horizontal then vertical
 	grid = {},
+	tile_image = love.graphics.newImage("assets/example.png"),
 }
 
 function map_manager:optimized_calc()
@@ -80,13 +82,16 @@ function map_manager:draw_grid(time)
 			else
 				love.graphics.setColor(255, 255, 255) -- Default color if no specific color is set
 			end
-			love.graphics.rectangle(
+
+			love.graphics.draw(self.tile_image, (_x - 0.5) * self.tile_size, (_y - 0.5) * self.tile_size, 0, 1, 1)
+
+			--[[ love.graphics.rectangle(
 				"fill",
 				(_x - 1) * self.tile_size,
 				(_y - 1) * self.tile_size,
 				self.tile_size,
 				self.tile_size
-			)
+			) ]]
 		end
 	end
 
