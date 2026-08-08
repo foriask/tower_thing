@@ -2,12 +2,12 @@ love.graphics.setDefaultFilter("nearest")
 animation_manager = {}
 
 animation_manager = {
-	bullet_spr = love.graphics.newImage("assets/bullet_spritesheet.png"),
-	enemie_spr = love.graphics.newImage("assets/enemie_spritesheet.png"),
-	tower_spr = love.graphics.newImage("assets/tower_spritesheet.png"),
+	bullets_spr = love.graphics.newImage("assets/bullet_spritesheet.png"),
+	enemies_spr = love.graphics.newImage("assets/enemie_spritesheet.png"),
+	towers_spr = love.graphics.newImage("assets/tower_spritesheet.png"),
 }
 
-function animation_manager:initialize(sheet, frameWidth, frameHeight)
+function animation_manager:initialize()
 	for _key, _sprite in pairs(self) do
 		if type(_sprite) ~= "function" and type(_sprite) == "userdata" then
 			local success, sprite_type = pcall(function()
@@ -18,6 +18,7 @@ function animation_manager:initialize(sheet, frameWidth, frameHeight)
 				self[_key] = {
 					hor_n = _sprite:getWidth() / 64,
 					ver_n = _sprite:getHeight() / 64,
+					free = {},
 					_sprite:getWidth(),
 					_sprite:getHeight(),
 					love.graphics.newSpriteBatch(_sprite),
@@ -39,10 +40,16 @@ function animation_manager:initialize(sheet, frameWidth, frameHeight)
 	end
 end
 
-function animation_manager:update_pos(_type, _pos, _number)
-	return _number
+function animation_manager:update_pos(_type, _pack)
+	for _i, _obj in ipairs(_pack) do
+		if _obj.sheet_numer then
+			a = animation_manager[_type .. "_spr_data"][3]
+		end
+		return _number
+	end
 end
 
+function animation_manager:delete(_type, _number) end
 function animation_manager:update_frame() end
 
 function animation_manager:draw_basics()
